@@ -1,0 +1,4 @@
+fields:
+  collection_to_index:
+    type: collections
+    max_items: 1
