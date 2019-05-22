@@ -9,18 +9,31 @@ use Statamic\API\Search;
 class UpdateCollectionSearchListener extends Listener
 {
     /**
-     * The events to be listened for, and the methods to call.
+     * Listen for entries being published and then update the search index
      *
      * @var array
      */
-    public $events = ['cp.entry.published' => 'handleAgentAdded'];
+    public $events = ['cp.entry.published' => 'handleEntrySaved'];
 
-    public function handleAgentAdded(Entry $entry)
+    public function handleEntrySaved(Entry $entry)
     {
-      if ($entry->collectionName() == $this->getConfig('collection_to_index', null)) {
-        $index = 'collections/' . $this->getConfig('collection_to_index', null);
-        
+      $collection_name = $entry->collectionName();
+
+      if ($this->shouldUpdateCollection($collection_name)) {
+        $index = 'collections/' . $collection_name;
         Search::update($index);
       }
+    }
+
+     /**
+     * Only update the collections if in the config
+     *
+     * @param $formset_name string
+     *
+     * @return bool
+     */
+    private function shouldUpdateCollection($collection_name)
+    {
+        return collect($this->getConfig('collection_to_index'))->contains($collection_name);
     }
 }
