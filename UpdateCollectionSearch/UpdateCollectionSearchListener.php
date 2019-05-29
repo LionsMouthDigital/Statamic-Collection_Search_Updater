@@ -2,6 +2,7 @@
 
 namespace Statamic\Addons\UpdateCollectionSearch;
 
+use Statamic\API\Config;
 use Statamic\Data\Entries\Entry;
 use Statamic\Extend\Listener;
 use Statamic\API\Search;
@@ -21,7 +22,9 @@ class UpdateCollectionSearchListener extends Listener
 
       if ($this->shouldUpdateCollection($collection_name)) {
         $index = 'collections/' . $collection_name;
-        Search::update($index);
+        foreach (Config::getLocales() as $locale) {
+            Search::in($index, $locale)->update();
+        }
       }
     }
 
